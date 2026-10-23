@@ -1,216 +1,174 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MASTER HUNTER: THE LOST — Prototype</title>
+<meta name="theme-color" content="#0c100f">
+<title>MASTER HUNTER: THE LOST</title>
 <style>
-  :root { color-scheme: dark; --bg:#101317; --panel:#1a2027; --line:#39434d; --gold:#e6b85c; --muted:#aab4be; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:radial-gradient(circle at top,#26313b,#101317 65%); color:#f2f4f5; font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif; }
-  .wrap { max-width:1120px; margin:0 auto; padding:18px; }
-  header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
-  h1 { font-size:clamp(21px,4vw,32px); margin:0; letter-spacing:1px; }
-  h1 span { color:var(--gold); }
-  .sub { color:var(--muted); font-size:13px; margin-top:3px; }
-  .layout { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:14px; align-items:start; }
-  .panel { background:rgba(26,32,39,.96); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-  .gamebox { padding:8px; }
-  canvas { width:100%; height:auto; display:block; background:#192b24; border-radius:7px; image-rendering:pixelated; outline:none; }
-  .side { padding:14px; }
-  .side h2 { font-size:16px; margin:0 0 10px; color:var(--gold); }
-  .stat { margin:10px 0; }
-  .statline { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:4px; }
-  .bar { height:9px; background:#303943; border-radius:10px; overflow:hidden; }
-  .fill { height:100%; width:100%; transition:width .12s; }
-  #hpFill { background:#dc5656; } #stFill { background:#e5b84f; } #xpFill { background:#6fb37b; }
-  .big { font-size:22px; font-weight:750; color:var(--gold); }
-  .muted { color:var(--muted); font-size:12px; }
-  .controls { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
-  .key { border:1px solid var(--line); border-radius:7px; padding:7px; background:#14191e; font-size:12px; }
-  kbd { display:inline-block; border:1px solid #65717e; border-radius:4px; padding:1px 5px; margin-right:4px; color:#fff; background:#252d35; }
-  button { cursor:pointer; color:#f7f7f7; background:#293640; border:1px solid #52606d; padding:9px 12px; border-radius:8px; font-weight:650; }
-  button:hover { background:#374754; } button:disabled { opacity:.4; cursor:not-allowed; }
-  .actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
-  .feed { max-height:150px; overflow:auto; background:#11161b; border:1px solid var(--line); border-radius:8px; padding:8px; font-size:12px; color:#c6d0d8; }
-  .feed div { padding:3px 0; border-bottom:1px solid #242c33; } .feed div:last-child { border:0; }
-  .footer { color:var(--muted); font-size:12px; margin-top:12px; }
-  .modal { display:none; position:fixed; inset:0; background:#000b; z-index:10; padding:18px; align-items:center; justify-content:center; }
-  .modal.open { display:flex; }
-  .modalcard { width:min(520px,100%); max-height:85vh; overflow:auto; padding:20px; background:#1a2027; border:1px solid #53616c; border-radius:14px; }
-  .modalcard h2 { margin-top:0; color:var(--gold); }
-  .shoprow { display:flex; justify-content:space-between; gap:12px; align-items:center; border-top:1px solid var(--line); padding:10px 0; }
-  @media(max-width:780px) { .layout { grid-template-columns:1fr; } .side { display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; } .side h2,.side .wide { grid-column:1/-1; } }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+:root{color-scheme:dark;--bg:#0b0f0e;--panel:#141a18;--panel2:#1a211e;--line:#34413a;--gold:#d7b56d;--gold2:#f3dba0;--muted:#a0ada5;--red:#d94f53;--green:#74b77d;--teal:#73c8b5}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,#34463a 0%,#141b17 38%,#090c0b 78%);color:#f0f2ec;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#a4b09c .65px,transparent .65px);background-size:5px 5px;mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+button{font:inherit;cursor:pointer;color:#f5f3e9;background:linear-gradient(180deg,#2b3730,#1a231e);border:1px solid #536454;padding:10px 13px;border-radius:8px;font-weight:700;box-shadow:inset 0 1px #ffffff0a;transition:transform .15s,border-color .15s,background .15s}
+button:hover{transform:translateY(-1px);border-color:var(--gold);background:linear-gradient(180deg,#3a4739,#202b24)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.wrap{max-width:1440px;margin:0 auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;padding:0 2px 16px;border-bottom:1px solid #64736533}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:46px;height:46px;display:grid;place-items:center;border:1px solid #9b814d;border-radius:10px;background:linear-gradient(145deg,#3b3929,#171b16);color:var(--gold2);font-size:23px;box-shadow:0 0 28px #d7b56d13}
+h1{font:800 clamp(20px,3vw,30px)/1.1 Cinzel,Georgia,serif;letter-spacing:1.4px;margin:0}
+h1 span{color:var(--gold)}
+.sub{color:var(--muted);font-size:11px;letter-spacing:2.1px;text-transform:uppercase;margin-top:7px}
+.header-status{display:flex;align-items:center;gap:9px;color:#c1c9c1;font-size:12px;padding:10px 13px;border:1px solid #35433a;border-radius:99px;background:#101612b8}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#83c78a;box-shadow:0 0 10px #83c78a}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,#1a211edb,#111613f5);border:1px solid #39473d;border-radius:13px;overflow:hidden;box-shadow:0 18px 48px #0005, inset 0 1px #ffffff08}
+.game-panel{padding:10px}
+.arena-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 7px 12px}
+.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#9eae9e}
+.arena-name{font:700 17px Cinzel,Georgia,serif;color:#e7ddc4;margin-top:2px}
+.tag{font-size:10px;color:#d7b56d;border:1px solid #6c5a35;background:#2b2518;padding:5px 8px;border-radius:5px;letter-spacing:1px;white-space:nowrap}
+.canvas-wrap{position:relative;border:1px solid #526052;border-radius:9px;overflow:hidden;background:#14231b;box-shadow:inset 0 0 35px #0008}
+canvas{width:100%;height:auto;display:block;image-rendering:pixelated;outline:none}
+.arena-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 90px #020605a8,inset 0 -35px 50px #03070555}
+.arena-caption{position:absolute;left:14px;bottom:12px;color:#d5dfd1;font:10px Cinzel,Georgia,serif;letter-spacing:1.5px;text-shadow:0 2px 4px #000}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions button{flex:1;min-width:135px}
+.btn-gold{border-color:#8b7548;background:linear-gradient(180deg,#594b2b,#332b1b);color:#ffe7ad}
+.btn-danger{border-color:#684043;background:linear-gradient(180deg,#49272a,#2b1a1b)}
+.footer{color:#829087;font-size:11px;margin:14px 3px 2px}
+.side{padding:17px}
+.side h2{font:700 13px Cinzel,Georgia,serif;letter-spacing:1.5px;color:var(--gold);margin:0 0 13px}
+.hunter-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #39473c;background:linear-gradient(135deg,#222c24,#151b17);border-radius:10px;margin-bottom:16px}
+.portrait{width:46px;height:46px;border-radius:8px;display:grid;place-items:center;font-size:24px;background:linear-gradient(145deg,#454432,#20251d);border:1px solid #746747}
+.hunter-name{font-weight:800;letter-spacing:1px}
+.hunter-rank{font-size:11px;color:#a8b4a7;margin-top:2px}
+.stat{margin:13px 0}
+.statline{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#b6c0b6;margin-bottom:6px}
+.statline strong{color:#f0f1e9;font-weight:700}
+.bar{height:10px;background:#090d0b;border:1px solid #344038;border-radius:99px;padding:1px;overflow:hidden}
+.fill{height:100%;width:100%;border-radius:99px;transition:width .12s}
+#hpFill{background:linear-gradient(90deg,#9d3438,#f06b64);box-shadow:0 0 10px #e54e4e55}
+#stFill{background:linear-gradient(90deg,#8b6a2d,#f0cb68)}
+#xpFill{background:linear-gradient(90deg,#3d8359,#9edb8c)}
+.divider{height:1px;background:linear-gradient(90deg,#8e784733,#8e784700);margin:17px 0}
+.currency-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.currency-box{padding:11px;border:1px solid #354138;border-radius:8px;background:#101612}
+.currency-label{color:#9ba89c;text-transform:uppercase;font-size:9px;letter-spacing:1.5px}
+.currency-value{font-size:22px;font-weight:800;color:var(--gold2);margin-top:3px}
+.currency-value small{font-size:11px;color:#b4bcac;font-weight:600}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.key{padding:8px;border:1px solid #344037;border-radius:7px;background:#0f1511;color:#adb8ae;font-size:10px}
+kbd{display:inline-block;border:1px solid #657363;border-bottom-width:2px;border-radius:4px;padding:1px 5px;margin-right:4px;color:#f6f3e9;background:#29332b;font:700 10px Inter}
+.feed{max-height:154px;overflow:auto;background:#0c110e;border:1px solid #303d33;border-radius:8px;padding:8px;font-size:11px;color:#bdc8bc}
+.feed div{padding:6px 2px;border-bottom:1px solid #202a22}.feed div:last-child{border:0}
+.modal{display:none;position:fixed;inset:0;background:#030604d9;backdrop-filter:blur(7px);z-index:10;padding:18px;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modalcard{width:min(540px,100%);max-height:85vh;overflow:auto;padding:22px;background:linear-gradient(145deg,#202920,#111612);border:1px solid #68744f;border-radius:14px;box-shadow:0 25px 100px #000b}
+.modalcard h2{font:700 20px Cinzel,Georgia,serif;margin:0 0 8px;color:var(--gold2)}
+.modalcard p{color:#a8b3a6}
+.shoprow{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #39453a;padding:13px 0}
+.shoprow b{color:#f1efe5}.muted{color:#9ba89d;font-size:11px}
+.modal .actions button{flex:initial;min-width:110px}
+@media(max-width:900px){.wrap{padding:14px}.layout{grid-template-columns:minmax(0,1fr) 275px;gap:12px}.side{padding:13px}}
+@media(max-width:700px){.wrap{padding:10px}.layout{grid-template-columns:1fr}.side{display:block}.header-status{display:none}.brand-mark{width:38px;height:38px}.sub{letter-spacing:1px;font-size:9px}.arena-name{font-size:14px}.game-panel{padding:7px}.actions button{min-width:calc(50% - 8px);font-size:12px;padding:9px 7px}.side{padding:14px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>MASTER HUNTER: <span>THE LOST</span></h1>
-      <div class="sub">Playable Prototype 0.1 · Dark Fantasy Action RPG</div>
-    </div>
-    <div class="muted">Progress tersimpan otomatis di browser</div>
-  </header>
-  <div class="layout">
-    <section class="panel gamebox">
-      <canvas id="game" width="800" height="520" tabindex="0" aria-label="Area permainan"></canvas>
-      <div class="actions">
-        <button id="shopBtn">🪙 Hunter Camp / Toko</button>
-        <button id="invBtn">🎒 Inventaris (I)</button>
-        <button id="saveBtn">💾 Simpan</button>
-        <button id="resetBtn">↻ Mulai Ulang</button>
-      </div>
-      <div class="footer">Prototype awal: jelajahi hutan, kalahkan monster, kumpulkan Zeni, dan beli potion. Ini fondasi awal—fitur dan konten akan ditambah bertahap.</div>
-    </section>
-    <aside class="panel side">
-      <h2 class="wide">STATUS HUNTER</h2>
-      <div class="wide"><div style="font-weight:800;font-size:19px">KAEL <span class="muted">· Novice Hunter</span></div><div class="muted">Hunter Rank F · Level <span id="level">1</span></div></div>
-      <div class="stat wide"><div class="statline"><span>HP</span><span id="hpText">100 / 100</span></div><div class="bar"><div class="fill" id="hpFill"></div></div></div>
-      <div class="stat wide"><div class="statline"><span>Stamina</span><span id="stText">100 / 100</span></div><div class="bar"><div class="fill" id="stFill"></div></div></div>
-      <div class="stat wide"><div class="statline"><span>EXP</span><span id="xpText">0 / 100</span></div><div class="bar"><div class="fill" id="xpFill"></div></div></div>
-      <div><div class="muted">ZENI</div><div class="big">◉ <span id="zeni">250</span></div></div>
-      <div><div class="muted">ATK / DEF</div><div style="font-weight:750"><span id="atk">15</span> / <span id="def">5</span></div></div>
-      <div class="wide"><h2 style="margin-top:10px">KONTROL</h2>
-        <div class="controls">
-          <div class="key"><kbd>W A S D</kbd> Gerak</div>
-          <div class="key"><kbd>Space</kbd> Serang</div>
-          <div class="key"><kbd>Shift</kbd> Dodge</div>
-          <div class="key"><kbd>Q</kbd> Potion</div>
-          <div class="key"><kbd>I</kbd> Inventaris</div>
-          <div class="key"><kbd>E</kbd> Toko</div>
-        </div>
-      </div>
-      <div class="wide"><h2 style="margin-top:15px">HUNT LOG</h2><div class="feed" id="feed" aria-live="polite"></div></div>
-    </aside>
+<header>
+  <div class="brand"><div class="brand-mark">⚔</div><div><h1>MASTER HUNTER: <span>THE LOST</span></h1><div class="sub">Dark Fantasy · Action RPG · Prototype 0.2</div></div></div>
+  <div class="header-status"><span class="live-dot"></span> PROGRESS AUTO-SAVE READY</div>
+</header>
+<div class="layout">
+<section class="panel game-panel">
+  <div class="arena-top"><div><div class="eyebrow">HUNTING GROUNDS / SECTOR 01</div><div class="arena-name">The Lost Forest</div></div><div class="tag">RANK F · BEGINNER</div></div>
+  <div class="canvas-wrap"><canvas id="game" width="800" height="520" tabindex="0" aria-label="Area permainan"></canvas><div class="arena-vignette"></div><div class="arena-caption">THE LOST FOREST — FORBIDDEN TERRITORY</div></div>
+  <div class="actions">
+    <button class="btn-gold" id="shopBtn">♜ Hunter Camp / Toko</button>
+    <button id="invBtn">🎒 Inventaris (I)</button>
+    <button id="saveBtn">💾 Simpan</button>
+    <button class="btn-danger" id="resetBtn">↻ Mulai Ulang</button>
   </div>
-</div>
+  <div class="footer">Jelajahi hutan terlarang. Kalahkan Thornfang, kumpulkan Zeni, dan bersiap menghadapi Varkhoss.</div>
+</section>
+<aside class="panel side">
+  <h2>HUNTER STATUS</h2>
+  <div class="hunter-card"><div class="portrait">🛡️</div><div><div class="hunter-name">KAEL</div><div class="hunter-rank">Novice Hunter · Rank F · Level <span id="level">1</span></div></div></div>
+  <div class="stat"><div class="statline"><span>♥ VITALITY / HP</span><strong id="hpText">100 / 100</strong></div><div class="bar"><div class="fill" id="hpFill"></div></div></div>
+  <div class="stat"><div class="statline"><span>✦ STAMINA</span><strong id="stText">100 / 100</strong></div><div class="bar"><div class="fill" id="stFill"></div></div></div>
+  <div class="stat"><div class="statline"><span>◆ EXPERIENCE</span><strong id="xpText">0 / 100</strong></div><div class="bar"><div class="fill" id="xpFill"></div></div></div>
+  <div class="divider"></div>
+  <div class="currency-grid"><div class="currency-box"><div class="currency-label">◉ Zeni</div><div class="currency-value" id="zeni">250</div></div><div class="currency-box"><div class="currency-label">ATK / DEF</div><div class="currency-value"><span id="atk">15</span><small> / </small><span id="def">5</span></div></div></div>
+  <div class="divider"></div>
+  <h2>FIELD CONTROLS</h2>
+  <div class="controls">
+    <div class="key"><kbd>W A S D</kbd> Gerak</div><div class="key"><kbd>SPACE</kbd> Serang</div>
+    <div class="key"><kbd>SHIFT</kbd> Dodge</div><div class="key"><kbd>Q</kbd> Potion</div>
+    <div class="key"><kbd>I</kbd> Inventaris</div><div class="key"><kbd>E</kbd> Toko</div>
+  </div>
+  <div class="divider"></div>
+  <h2>HUNT LOG</h2><div class="feed" id="feed" aria-live="polite"></div>
+</aside>
+</div></div>
 <div class="modal" id="modal"><div class="modalcard"><div id="modalContent"></div><div class="actions"><button id="closeModal">Tutup (Esc)</button></div></div></div>
 <script>
 (() => {
   const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
-  const W=canvas.width,H=canvas.height;
-  const keys = new Set();
-  let last=0, spawnClock=0, gameOver=false, paused=false, swing=0, invuln=0, dodge=0;
-  let player, enemies=[], particles=[], items=[], zeni=250, potions=2, level=1, exp=0, xpNeed=100, kills=0, bossSpawned=false;
-  let inventoryOpen=false;
+  const W=canvas.width,H=canvas.height,keys=new Set();
+  let last=0,spawnClock=0,gameOver=false,paused=false,swing=0,invuln=0,dodge=0;
+  let player,enemies=[],particles=[],items=[],zeni=250,potions=2,level=1,exp=0,xpNeed=100,kills=0,bossSpawned=false;
   const feedEl=document.getElementById('feed');
-  function log(s){ const d=document.createElement('div'); d.textContent='› '+s; feedEl.prepend(d); while(feedEl.children.length>8)feedEl.lastChild.remove(); }
-  function freshPlayer(){ return {x:W/2,y:H/2,r:12,hp:100,maxHp:100,st:100,maxSt:100,atk:15,def:5,faceX:1,faceY:0,speed:170}; }
-  function save(){
-    try { localStorage.setItem('mhtl-save',JSON.stringify({player:{x:player.x,y:player.y,hp:player.hp,maxHp:player.maxHp,st:player.st,maxSt:player.maxSt,atk:player.atk,def:player.def},zeni,potions,level,exp,xpNeed,kills})); log('Progress berhasil disimpan.'); }
-    catch(e){ log('Browser tidak mengizinkan penyimpanan.'); }
-    updateUI();
-  }
-  function load(){
-    try { const s=JSON.parse(localStorage.getItem('mhtl-save')||'null'); if(s){ player=Object.assign(freshPlayer(),s.player||{}); zeni=s.zeni??250; potions=s.potions??2; level=s.level??1; exp=s.exp??0; xpNeed=s.xpNeed??100; kills=s.kills??0; log('Save ditemukan. Selamat berburu kembali!'); return; } }catch(e){}
-    player=freshPlayer();
-  }
-  function updateUI(){
-    const set=(id,v)=>document.getElementById(id).textContent=v;
-    set('hpText',Math.ceil(player.hp)+' / '+player.maxHp); document.getElementById('hpFill').style.width=(player.hp/player.maxHp*100)+'%';
-    set('stText',Math.ceil(player.st)+' / '+player.maxSt); document.getElementById('stFill').style.width=(player.st/player.maxSt*100)+'%';
-    set('xpText',exp+' / '+xpNeed); document.getElementById('xpFill').style.width=(exp/xpNeed*100)+'%';
-    set('zeni',zeni);set('level',level);set('atk',player.atk);set('def',player.def);
-  }
-  function spawnEnemy(boss=false){
-    let side=Math.floor(Math.random()*4), x=side===0?20:side===1?W-20:Math.random()*(W-40)+20, y=side===2?20:side===3?H-20:Math.random()*(H-40)+20;
-    const scale=boss?4:1;
-    enemies.push({x,y,r:boss?27:13,hp:boss?260:35,maxHp:boss?260:35,atk:boss?20:8,speed:boss?39:54+Math.random()*18,boss,hit:0,phase:Math.random()*6});
-    if(boss) log('BOSS MUNCUL: VARKHOSS, The Corrupted Fang! Cari celah serangannya!');
-    else if(enemies.length===1) log('Thornfang terdeteksi. Siapkan senjata!');
-  }
-  function drop(e){
-    const money=e.boss?600:25+Math.floor(Math.random()*36); zeni+=money;
-    items.push({x:e.x,y:e.y,r:5,type:'coin',value:money,life:18});
-    if(Math.random()<(e.boss?1:.35)) items.push({x:e.x+8,y:e.y+6,r:5,type:'mat',value:1,life:18});
-    const gain=e.boss?120:25; exp+=gain;
-    log((e.boss?'Varkhoss dikalahkan!':'Monster dikalahkan!')+' +'+money+' Zeni, +'+gain+' EXP.');
-    kills++;
-    while(exp>=xpNeed){ exp-=xpNeed;level++;xpNeed=Math.floor(xpNeed*1.35);player.maxHp+=15;player.hp=player.maxHp;player.atk+=3;player.maxSt+=5;player.st=player.maxSt;log('LEVEL UP! Sekarang Level '+level+'. HP dipulihkan!'); }
-    if(e.boss){bossSpawned=true; log('Material langka diperoleh! Boss berikutnya akan jadi lebih kuat di update mendatang.');}
-    updateUI();
-  }
-  function attack(){
-    if(gameOver||paused||swing>0||player.st<12)return;
-    player.st-=12;swing=.22;
-    let hitAny=false;
-    for(const e of enemies){
-      const dx=e.x-player.x,dy=e.y-player.y,dist=Math.hypot(dx,dy);
-      const dot=(dx*player.faceX+dy*player.faceY)/(dist||1);
-      if(dist<58+(e.boss?8:0)&&dot>-.2){ e.hp-=player.atk; e.hit=.14; hitAny=true; burst(e.x,e.y,'#f4d17b',7); if(e.hp<=0)e.dead=true; }
-    }
-    if(hitAny) log('Serangan mengenai target!');
-  }
+  function log(s){const d=document.createElement('div');d.textContent='› '+s;feedEl.prepend(d);while(feedEl.children.length>8)feedEl.lastChild.remove();}
+  function freshPlayer(){return{x:W/2,y:H/2,r:12,hp:100,maxHp:100,st:100,maxSt:100,atk:15,def:5,faceX:1,faceY:0,speed:170};}
+  function save(){try{localStorage.setItem('mhtl-save',JSON.stringify({player:{x:player.x,y:player.y,hp:player.hp,maxHp:player.maxHp,st:player.st,maxSt:player.maxSt,atk:player.atk,def:player.def},zeni,potions,level,exp,xpNeed,kills}));log('Progress berhasil disimpan.');}catch(e){log('Browser tidak mengizinkan penyimpanan.');}updateUI();}
+  function load(){try{const s=JSON.parse(localStorage.getItem('mhtl-save')||'null');if(s){player=Object.assign(freshPlayer(),s.player||{});zeni=s.zeni??250;potions=s.potions??2;level=s.level??1;exp=s.exp??0;xpNeed=s.xpNeed??100;kills=s.kills??0;log('Save ditemukan. Selamat berburu kembali!');return;}}catch(e){}player=freshPlayer();}
+  function updateUI(){const set=(id,v)=>document.getElementById(id).textContent=v;set('hpText',Math.ceil(player.hp)+' / '+player.maxHp);document.getElementById('hpFill').style.width=(player.hp/player.maxHp*100)+'%';set('stText',Math.ceil(player.st)+' / '+player.maxSt);document.getElementById('stFill').style.width=(player.st/player.maxSt*100)+'%';set('xpText',exp+' / '+xpNeed);document.getElementById('xpFill').style.width=(exp/xpNeed*100)+'%';set('zeni',zeni);set('level',level);set('atk',player.atk);set('def',player.def);}
+  function spawnEnemy(boss=false){const side=Math.floor(Math.random()*4),x=side===0?20:side===1?W-20:Math.random()*(W-40)+20,y=side===2?20:side===3?H-20:Math.random()*(H-40)+20;enemies.push({x,y,r:boss?27:13,hp:boss?260:35,maxHp:boss?260:35,atk:boss?20:8,speed:boss?39:54+Math.random()*18,boss,hit:0,phase:Math.random()*6});if(boss)log('BOSS MUNCUL: VARKHOSS, The Corrupted Fang! Cari celah serangannya!');else if(enemies.length===1)log('Thornfang terdeteksi. Siapkan senjata!');}
+  function drop(e){const money=e.boss?600:25+Math.floor(Math.random()*36);zeni+=money;items.push({x:e.x,y:e.y,r:5,type:'coin',value:money,life:18});if(Math.random()<(e.boss?1:.35))items.push({x:e.x+8,y:e.y+6,r:5,type:'mat',value:1,life:18});const gain=e.boss?120:25;exp+=gain;log((e.boss?'Varkhoss dikalahkan!':'Monster dikalahkan!')+' +'+money+' Zeni, +'+gain+' EXP.');kills++;while(exp>=xpNeed){exp-=xpNeed;level++;xpNeed=Math.floor(xpNeed*1.35);player.maxHp+=15;player.hp=player.maxHp;player.atk+=3;player.maxSt+=5;player.st=player.maxSt;log('LEVEL UP! Sekarang Level '+level+'. HP dipulihkan!');}if(e.boss){bossSpawned=true;log('Material langka diperoleh! Boss berikutnya akan jadi lebih kuat di update mendatang.');}updateUI();}
+  function attack(){if(gameOver||paused||swing>0||player.st<12)return;player.st-=12;swing=.22;let hitAny=false;for(const e of enemies){const dx=e.x-player.x,dy=e.y-player.y,dist=Math.hypot(dx,dy),dot=(dx*player.faceX+dy*player.faceY)/(dist||1);if(dist<58+(e.boss?8:0)&&dot>-.2){e.hp-=player.atk;e.hit=.14;hitAny=true;burst(e.x,e.y,'#f4d17b',7);if(e.hp<=0)e.dead=true;}}if(hitAny)log('Serangan mengenai target!');}
   function burst(x,y,color,n){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*140,vy:(Math.random()-.5)*140,life:.25+Math.random()*.25,color});}
   function usePotion(){if(potions<=0){log('Potion habis! Beli lagi di Hunter Camp.');return;}if(player.hp>=player.maxHp){log('HP masih penuh.');return;}potions--;player.hp=Math.min(player.maxHp,player.hp+45);log('Health Potion digunakan: +45 HP.');updateUI();}
   function dodgeMove(){if(player.st<25||dodge>0)return;player.st-=25;dodge=.22;invuln=.32;player.x+=player.faceX*25;player.y+=player.faceY*25;player.x=Math.max(18,Math.min(W-18,player.x));player.y=Math.max(18,Math.min(H-18,player.y));}
-  function openModal(kind){
-    paused=true; const m=document.getElementById('modal'), c=document.getElementById('modalContent');m.classList.add('open');
-    if(kind==='shop'){
-      c.innerHTML='<h2>⛺ Hunter Camp</h2><p class="muted">Gunakan Zeni untuk persiapan hunt.</p>'+
-      '<div class="shoprow"><div><b>Health Potion</b><div class="muted">Pulihkan 45 HP · Punya: '+potions+'</div></div><button id="buyPotion" '+(zeni<100?'disabled':'')+'>100 Zeni</button></div>'+
-      '<div class="shoprow"><div><b>Upgrade Weapon</b><div class="muted">ATK +5 · Sekali beli per prototype</div></div><button id="buyWeapon" '+(zeni<300?'disabled':'')+'>300 Zeni</button></div>'+
-      '<div class="shoprow"><div><b>Armor Upgrade</b><div class="muted">DEF +3</div></div><button id="buyArmor" '+(zeni<250?'disabled':'')+'>250 Zeni</button></div>'+
-      '<p class="muted">Zeni saat ini: '+zeni+'</p>';
-      setTimeout(()=>{const p=document.getElementById('buyPotion');if(p)p.onclick=()=>{if(zeni>=100){zeni-=100;potions++;log('Membeli Health Potion.');openModal('shop');updateUI();}};const w=document.getElementById('buyWeapon');if(w)w.onclick=()=>{if(zeni>=300){zeni-=300;player.atk+=5;log('Senjata di-upgrade! ATK +5.');openModal('shop');updateUI();}};const a=document.getElementById('buyArmor');if(a)a.onclick=()=>{if(zeni>=250){zeni-=250;player.def+=3;log('Armor di-upgrade! DEF +3.');openModal('shop');updateUI();}};},0);
-    } else {
-      c.innerHTML='<h2>🎒 Inventaris Hunter</h2><div class="shoprow"><b>Health Potion</b><span>'+potions+'</span></div><div class="shoprow"><b>Monster Material</b><span>'+kills+'</span></div><div class="shoprow"><b>ZENI</b><span>'+zeni+'</span></div><div class="shoprow"><b>Weapon ATK</b><span>'+player.atk+'</span></div><div class="shoprow"><b>Armor DEF</b><span>'+player.def+'</span></div><p class="muted">Fitur crafting dan equipment lengkap akan ditambahkan di versi berikutnya.</p>';
-    }
-  }
+  function openModal(kind){paused=true;const m=document.getElementById('modal'),c=document.getElementById('modalContent');m.classList.add('open');if(kind==='shop'){c.innerHTML='<h2>⛺ Hunter Camp</h2><p class="muted">Gunakan Zeni untuk persiapan hunt.</p><div class="shoprow"><div><b>Health Potion</b><div class="muted">Pulihkan 45 HP · Punya: '+potions+'</div></div><button id="buyPotion" '+(zeni<100?'disabled':'')+'>100 Zeni</button></div><div class="shoprow"><div><b>Upgrade Weapon</b><div class="muted">ATK +5</div></div><button id="buyWeapon" '+(zeni<300?'disabled':'')+'>300 Zeni</button></div><div class="shoprow"><div><b>Armor Upgrade</b><div class="muted">DEF +3</div></div><button id="buyArmor" '+(zeni<250?'disabled':'')+'>250 Zeni</button></div><p class="muted">Zeni saat ini: '+zeni+'</p>';setTimeout(()=>{const p=document.getElementById('buyPotion');if(p)p.onclick=()=>{if(zeni>=100){zeni-=100;potions++;log('Membeli Health Potion.');openModal('shop');updateUI();}};const w=document.getElementById('buyWeapon');if(w)w.onclick=()=>{if(zeni>=300){zeni-=300;player.atk+=5;log('Senjata di-upgrade! ATK +5.');openModal('shop');updateUI();}};const a=document.getElementById('buyArmor');if(a)a.onclick=()=>{if(zeni>=250){zeni-=250;player.def+=3;log('Armor di-upgrade! DEF +3.');openModal('shop');updateUI();}};},0);}else{c.innerHTML='<h2>🎒 Inventaris Hunter</h2><div class="shoprow"><b>Health Potion</b><span>'+potions+'</span></div><div class="shoprow"><b>Monster Material</b><span>'+kills+'</span></div><div class="shoprow"><b>ZENI</b><span>'+zeni+'</span></div><div class="shoprow"><b>Weapon ATK</b><span>'+player.atk+'</span></div><div class="shoprow"><b>Armor DEF</b><span>'+player.def+'</span></div><p class="muted">Fitur crafting dan equipment lengkap akan ditambahkan di versi berikutnya.</p>';}}
   function closeModal(){document.getElementById('modal').classList.remove('open');paused=false;canvas.focus();}
-  document.getElementById('closeModal').onclick=closeModal;
-  document.getElementById('shopBtn').onclick=()=>openModal('shop');
-  document.getElementById('invBtn').onclick=()=>openModal('inv');
-  document.getElementById('saveBtn').onclick=save;
-  document.getElementById('resetBtn').onclick=()=>{if(confirm('Mulai ulang? Save yang ada akan dihapus.')){localStorage.removeItem('mhtl-save');location.reload();}};
+  document.getElementById('closeModal').onclick=closeModal;document.getElementById('shopBtn').onclick=()=>openModal('shop');document.getElementById('invBtn').onclick=()=>openModal('inv');document.getElementById('saveBtn').onclick=save;document.getElementById('resetBtn').onclick=()=>{if(confirm('Mulai ulang? Save yang ada akan dihapus.')){localStorage.removeItem('mhtl-save');location.reload();}};
   window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys.add(k);if(k===' '||k==='j')attack();if(k==='q')usePotion();if(k==='shift')dodgeMove();if(k==='e'&&!paused)openModal('shop');if(k==='i'&&!paused)openModal('inv');if(k==='escape'&&paused)closeModal();});
   window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-  function update(dt){
-    if(paused||gameOver)return;
-    player.st=Math.min(player.maxSt,player.st+22*dt);swing=Math.max(0,swing-dt);invuln=Math.max(0,invuln-dt);dodge=Math.max(0,dodge-dt);
-    let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy--;if(keys.has('s')||keys.has('arrowdown'))dy++;if(keys.has('a')||keys.has('arrowleft'))dx--;if(keys.has('d')||keys.has('arrowright'))dx++;
-    if(dx||dy){let l=Math.hypot(dx,dy);dx/=l;dy/=l;player.faceX=dx;player.faceY=dy;player.x+=dx*player.speed*dt;player.y+=dy*player.speed*dt;}
-    player.x=Math.max(17,Math.min(W-17,player.x));player.y=Math.max(17,Math.min(H-17,player.y));
-    spawnClock+=dt;if(spawnClock>2.7&&enemies.filter(e=>!e.boss).length<5){spawnClock=0;spawnEnemy(false);}
-    if(kills>=5&&!bossSpawned&&!enemies.some(e=>e.boss)){spawnEnemy(true);}
-    for(const e of enemies){if(e.dead)continue;e.hit=Math.max(0,e.hit-dt);const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;if(d>e.r+player.r+4){e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt;}else if(invuln<=0){player.hp-=Math.max(1,e.atk-player.def)*dt;}}
-    enemies=enemies.filter(e=>{if(e.dead){drop(e);return false;}return true;});
-    items=items.filter(it=>{it.life-=dt;if(Math.hypot(player.x-it.x,player.y-it.y)<25){if(it.type==='coin'){/* Zeni already granted */}else log('Material monster dikumpulkan.');return false;}return it.life>0;});
-    particles=particles.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;return p.life>0;});
-    if(player.hp<=0){player.hp=0;gameOver=true;log('Hunter tumbang! Tekan Enter untuk kembali ke camp.');}
-    updateUI();
-  }
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    // forest floor
-    ctx.fillStyle='#1a3027';ctx.fillRect(0,0,W,H);
-    for(let y=12;y<H;y+=32)for(let x=12;x<W;x+=32){ctx.fillStyle=((x*3+y*7)%5===0)?'#20382c':'#1d3429';ctx.fillRect(x,y,20,20);}
-    // trail
-    ctx.fillStyle='#3d3b2c';ctx.beginPath();ctx.ellipse(W/2,H/2,110,70,-.3,0,Math.PI*2);ctx.fill();
-    // trees and stones
-    for(let i=0;i<34;i++){const x=(i*137+37)%W,y=(i*83+21)%H;if(Math.hypot(x-player.x,y-player.y)<35)continue;ctx.fillStyle='#10231d';ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#35523a';ctx.beginPath();ctx.arc(x-3,y-4,10,0,Math.PI*2);ctx.fill();}
+  function update(dt){if(paused||gameOver)return;player.st=Math.min(player.maxSt,player.st+22*dt);swing=Math.max(0,swing-dt);invuln=Math.max(0,invuln-dt);dodge=Math.max(0,dodge-dt);let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy--;if(keys.has('s')||keys.has('arrowdown'))dy++;if(keys.has('a')||keys.has('arrowleft'))dx--;if(keys.has('d')||keys.has('arrowright'))dx++;if(dx||dy){const l=Math.hypot(dx,dy);dx/=l;dy/=l;player.faceX=dx;player.faceY=dy;player.x+=dx*player.speed*dt;player.y+=dy*player.speed*dt;}player.x=Math.max(17,Math.min(W-17,player.x));player.y=Math.max(17,Math.min(H-17,player.y));spawnClock+=dt;if(spawnClock>2.7&&enemies.filter(e=>!e.boss).length<5){spawnClock=0;spawnEnemy(false);}if(kills>=5&&!bossSpawned&&!enemies.some(e=>e.boss))spawnEnemy(true);for(const e of enemies){if(e.dead)continue;e.hit=Math.max(0,e.hit-dt);const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;if(d>e.r+player.r+4){e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt;}else if(invuln<=0){player.hp-=Math.max(1,e.atk-player.def)*dt;}}enemies=enemies.filter(e=>{if(e.dead){drop(e);return false;}return true;});items=items.filter(it=>{it.life-=dt;if(Math.hypot(player.x-it.x,player.y-it.y)<25){if(it.type==='mat')log('Material monster dikumpulkan!');return false;}return it.life>0;});particles=particles.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;return p.life>0;});if(player.hp<=0){player.hp=0;gameOver=true;log('Hunter tumbang! Tekan Enter untuk kembali ke camp.');}updateUI();}
+  function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#14271d';ctx.fillRect(0,0,W,H);
+    // Dappled mossy ground
+    for(let y=0;y<H;y+=32)for(let x=0;x<W;x+=32){ctx.fillStyle=((x*3+y*7)%5===0)?'#1b3022':'#172b20';ctx.fillRect(x,y,30,30);ctx.fillStyle='#263a27';ctx.fillRect(x+5,y+7,2,2);ctx.fillRect(x+22,y+20,2,2);}
+    // Winding dirt trail
+    ctx.strokeStyle='#4a4531';ctx.lineWidth=88;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-20,390);ctx.bezierCurveTo(180,300,180,440,350,340);ctx.bezierCurveTo(500,240,550,400,820,260);ctx.stroke();
+    ctx.strokeStyle='#62583a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-20,390);ctx.bezierCurveTo(180,300,180,440,350,340);ctx.bezierCurveTo(500,240,550,400,820,260);ctx.stroke();
+    // Tree shadows and layered canopies
+    for(let i=0;i<38;i++){const x=(i*137+37)%W,y=(i*83+21)%H;if(Math.hypot(x-player.x,y-player.y)<37)continue;ctx.fillStyle='#0a1510';ctx.beginPath();ctx.ellipse(x+3,y+7,20,15,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#203d29';ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#315438';ctx.beginPath();ctx.arc(x-4,y-5,11,0,Math.PI*2);ctx.fill();ctx.fillStyle='#426744';ctx.fillRect(x-7,y-9,3,3);}
+    // Mossy stones
+    for(let i=0;i<12;i++){const x=(i*193+74)%W,y=(i*127+65)%H;ctx.fillStyle='#344239';ctx.beginPath();ctx.ellipse(x,y,8,5,.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#5b694e';ctx.fillRect(x-3,y-4,4,2);}
+    // ambient fireflies
+    for(let i=0;i<18;i++){const x=(i*97+(performance.now()*.012))%W,y=(i*61+24)%H;ctx.fillStyle='#d4d989';ctx.globalAlpha=.22+Math.sin(performance.now()/350+i)*.18;ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
     // camp marker
-    ctx.fillStyle='#d7a84b';ctx.fillRect(24,24,20,20);ctx.fillStyle='#ffe3a0';ctx.font='12px system-ui';ctx.fillText('CAMP',50,39);
+    ctx.fillStyle='#d7b56d';ctx.fillRect(24,24,20,20);ctx.fillStyle='#ffe7ad';ctx.font='bold 11px Inter';ctx.fillText('CAMP',50,38);
     // drops
-    for(const it of items){ctx.fillStyle=it.type==='coin'?'#f0c34e':'#8fd3a1';ctx.beginPath();ctx.arc(it.x,it.y,it.r,0,Math.PI*2);ctx.fill();}
-    // enemies
-    for(const e of enemies){ctx.save();ctx.translate(e.x,e.y);if(e.boss){ctx.fillStyle=e.hit?'#fff':'#722e38';ctx.beginPath();ctx.arc(0,0,e.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ed6262';ctx.fillRect(-18,-4,7,7);ctx.fillRect(11,-4,7,7);ctx.fillStyle='#25151a';ctx.fillRect(-e.r,-e.r-14,e.r*2,5);ctx.fillStyle='#e14e54';ctx.fillRect(-e.r,-e.r-14,e.r*2*(e.hp/e.maxHp),5);}else{ctx.fillStyle=e.hit?'#fff':'#8a5550';ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0d58b';ctx.fillRect(-8,-5,3,3);ctx.fillRect(5,-5,3,3);ctx.fillStyle='#252b25';ctx.fillRect(-12,-20,24,3);ctx.fillStyle='#b64d48';ctx.fillRect(-12,-20,24*(e.hp/e.maxHp),3);}ctx.restore();}
-    // player
-    ctx.save();ctx.translate(player.x,player.y);
-    if(invuln>0){ctx.globalAlpha=.6+Math.sin(performance.now()/35)*.3;}
-    ctx.fillStyle='#080c0e';ctx.beginPath();ctx.ellipse(0,5,13,10,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#4c6871';ctx.fillRect(-8,-11,16,18);
-    ctx.fillStyle='#d1a879';ctx.beginPath();ctx.arc(0,-14,7,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#182026';ctx.fillRect(-7,-21,14,6);
-    ctx.fillStyle='#2eb9b1';ctx.fillRect(-9,-7,5,13);
-    ctx.strokeStyle='#d5dce1';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(player.faceX*8,player.faceY*8);ctx.lineTo(player.faceX*24,player.faceY*24);ctx.stroke();
-    if(swing>0){ctx.strokeStyle='#f6e4a6';ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.faceX*17,player.faceY*17,24,-.8,.8);ctx.stroke();}
-    ctx.restore();
-    for(const p of particles){ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,4,4);}ctx.globalAlpha=1;
-    if(gameOver){ctx.fillStyle='#000b';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 32px system-ui';ctx.fillText('HUNTER TUMBANG',W/2,H/2-10);ctx.font='16px system-ui';ctx.fillText('Tekan ENTER untuk kembali ke camp',W/2,H/2+25);ctx.textAlign='left';}
-    ctx.fillStyle='#f0e5ca';ctx.font='13px system-ui';ctx.fillText('THE LOST FOREST',W-155,24);
-    ctx.fillStyle='#c7d0c8';ctx.font='11px system-ui';ctx.fillText('Kalahkan 5 monster untuk memanggil boss',W-250,H-15);
+    for(const it of items){ctx.save();ctx.translate(it.x,it.y);ctx.shadowBlur=12;ctx.shadowColor=it.type==='coin'?'#f0c34e':'#8fd3a1';ctx.fillStyle=it.type==='coin'?'#f0c34e':'#8fd3a1';ctx.beginPath();ctx.arc(0,0,it.r+1,0,Math.PI*2);ctx.fill();ctx.restore();}
+    // enemies with health bars
+    for(const e of enemies){ctx.save();ctx.translate(e.x,e.y);if(e.boss){ctx.shadowBlur=20;ctx.shadowColor='#c52d3b';ctx.fillStyle=e.hit?'#fff':'#622632';ctx.beginPath();ctx.arc(0,0,e.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e35a59';ctx.beginPath();ctx.moveTo(-22,-19);ctx.lineTo(-35,-36);ctx.lineTo(-14,-28);ctx.fill();ctx.beginPath();ctx.moveTo(22,-19);ctx.lineTo(35,-36);ctx.lineTo(14,-28);ctx.fill();ctx.fillStyle='#f5a66d';ctx.fillRect(-18,-5,7,5);ctx.fillRect(11,-5,7,5);ctx.fillStyle='#17100f';ctx.fillRect(-e.r,-e.r-17,e.r*2,5);ctx.fillStyle='#e14e54';ctx.fillRect(-e.r,-e.r-17,e.r*2*(Math.max(0,e.hp)/e.maxHp),5);}else{ctx.fillStyle='#090e0b';ctx.beginPath();ctx.ellipse(0,5,16,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=e.hit?'#fff':'#6e4541';ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ba8b62';ctx.beginPath();ctx.moveTo(-9,-4);ctx.lineTo(-17,-13);ctx.lineTo(-4,-8);ctx.fill();ctx.beginPath();ctx.moveTo(9,-4);ctx.lineTo(17,-13);ctx.lineTo(4,-8);ctx.fill();ctx.fillStyle='#f5d78d';ctx.fillRect(-8,-3,3,3);ctx.fillRect(5,-3,3,3);ctx.fillStyle='#101511';ctx.fillRect(-12,-20,24,3);ctx.fillStyle='#d94f53';ctx.fillRect(-12,-20,24*Math.max(0,e.hp/e.maxHp),3);}ctx.restore();}
+    // player shadow and armor silhouette
+    ctx.save();ctx.translate(player.x,player.y);if(invuln>0)ctx.globalAlpha=.55+Math.sin(performance.now()/35)*.3;ctx.fillStyle='#070a08';ctx.beginPath();ctx.ellipse(0,7,15,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#293b3c';ctx.fillRect(-9,-11,18,20);ctx.fillStyle='#56766c';ctx.fillRect(-7,-9,14,15);ctx.fillStyle='#c8a37c';ctx.beginPath();ctx.arc(0,-15,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#161d19';ctx.fillRect(-8,-22,16,7);ctx.fillStyle='#d7b56d';ctx.fillRect(-2,-7,4,12);ctx.strokeStyle='#e4e6d8';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.faceX*7,player.faceY*7);ctx.lineTo(player.faceX*25,player.faceY*25);ctx.stroke();if(swing>0){ctx.strokeStyle='#f8e8ae';ctx.lineWidth=5;ctx.shadowBlur=16;ctx.shadowColor='#e5c46e';ctx.beginPath();ctx.arc(player.faceX*17,player.faceY*17,25,-.9,.9);ctx.stroke();}ctx.restore();
+    // particle effects
+    for(const p of particles){ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=p.color;ctx.shadowBlur=8;ctx.shadowColor=p.color;ctx.fillRect(p.x,p.y,4,4);}ctx.globalAlpha=1;ctx.shadowBlur=0;
+    // Boss title
+    const boss=enemies.find(e=>e.boss);if(boss){ctx.fillStyle='#080a09b8';ctx.fillRect(W/2-170,10,340,36);ctx.strokeStyle='#86504a';ctx.strokeRect(W/2-170,10,340,36);ctx.fillStyle='#f0d4bd';ctx.textAlign='center';ctx.font='bold 12px Cinzel,Georgia,serif';ctx.fillText('VARKHOSS · THE CORRUPTED FANG',W/2,24);ctx.fillStyle='#311a1b';ctx.fillRect(W/2-150,30,300,5);ctx.fillStyle='#d94f53';ctx.fillRect(W/2-150,30,300*Math.max(0,boss.hp/boss.maxHp),5);ctx.textAlign='left';}
+    // arena label and objective
+    ctx.fillStyle='#f0e5ca';ctx.font='11px Cinzel,Georgia,serif';ctx.fillText('THE LOST FOREST',W-145,24);ctx.fillStyle='#d2d8cb';ctx.font='10px Inter';ctx.fillText('Kalahkan 5 monster untuk memanggil boss',W-248,H-15);
+    // subtle edge darkening
+    const g=ctx.createRadialGradient(W/2,H/2,100,W/2,H/2,470);g.addColorStop(0,'#00000000');g.addColorStop(1,'#03070566');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    if(gameOver){ctx.fillStyle='#000c';ctx.fillRect(0,0,W,H);ctx.fillStyle='#f1dfb2';ctx.textAlign='center';ctx.font='bold 30px Cinzel,Georgia,serif';ctx.fillText('HUNTER TUMBANG',W/2,H/2-10);ctx.fillStyle='#e5e7dd';ctx.font='14px Inter';ctx.fillText('Tekan ENTER untuk kembali ke camp',W/2,H/2+25);ctx.textAlign='left';}
   }
   function frame(t){const dt=Math.min(.033,(t-last)/1000||0);last=t;if(gameOver&&keys.has('enter')){gameOver=false;player.hp=player.maxHp;player.x=W/2;player.y=H/2;invuln=2;log('Kembali ke camp. Bersiaplah untuk hunt berikutnya.');keys.delete('enter');}update(dt);draw();requestAnimationFrame(frame);}
   load();updateUI();log('Selamat datang, Hunter. Hutan ini menyimpan sesuatu yang hilang.');log('Tips: gunakan WASD untuk bergerak dan Space untuk menyerang.');requestAnimationFrame(frame);
@@ -218,3 +176,63 @@
 </script>
 </body>
 </html>
+'''
+path = Path("/mnt/data/master_hunter_the_lost_v02.html")
+path.write_text(html, encoding="utf-8")
+print(f"File siap: {path}\nUkuran: {path.stat().st_size:,} bytes")
+from pathlib import Path
+
+css = r'''<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+:root{color-scheme:dark;--bg:#0b0f0e;--panel:#141a18;--panel2:#1a211e;--line:#34413a;--gold:#d7b56d;--gold2:#f3dba0;--muted:#a0ada5;--red:#d94f53;--green:#74b77d;--teal:#73c8b5}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,#34463a 0%,#141b17 38%,#090c0b 78%);color:#f0f2ec;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#a4b09c .65px,transparent .65px);background-size:5px 5px;mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+*{scrollbar-color:#53634f #101612;scrollbar-width:thin}
+button{cursor:pointer;color:#f5f3e9;background:linear-gradient(180deg,#2b3730,#1a231e);border:1px solid #536454;padding:10px 13px;border-radius:8px;font-weight:700;box-shadow:inset 0 1px #ffffff0a;transition:transform .15s,border-color .15s,background .15s}
+button:hover{transform:translateY(-1px);border-color:var(--gold);background:linear-gradient(180deg,#3a4739,#202b24)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.wrap{max-width:1440px;margin:0 auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;padding:0 2px 16px;border-bottom:1px solid #64736533}
+h1{font:800 clamp(20px,3vw,30px)/1.1 Cinzel,Georgia,serif;letter-spacing:1.4px;margin:0}
+h1 span{color:var(--gold)}
+.sub{color:var(--muted);font-size:11px;letter-spacing:2.1px;text-transform:uppercase;margin-top:7px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,#1a211edb,#111613f5);border:1px solid #39473d;border-radius:13px;overflow:hidden;box-shadow:0 18px 48px #0005,inset 0 1px #ffffff08}
+.gamebox{padding:10px}
+canvas{width:100%;height:auto;display:block;image-rendering:pixelated;outline:none;border:1px solid #526052;border-radius:9px;box-shadow:inset 0 0 35px #0008}
+.side{padding:17px}
+.side h2{font:700 13px Cinzel,Georgia,serif;letter-spacing:1.5px;color:var(--gold);margin:0 0 13px}
+.stat{margin:13px 0}
+.statline{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#b6c0b6;margin-bottom:6px}
+.statline strong{color:#f0f1e9;font-weight:700}
+.bar{height:10px;background:#090d0b;border:1px solid #344038;border-radius:99px;padding:1px;overflow:hidden}
+.fill{height:100%;width:100%;border-radius:99px;transition:width .12s}
+#hpFill{background:linear-gradient(90deg,#9d3438,#f06b64);box-shadow:0 0 10px #e54e4e55}
+#stFill{background:linear-gradient(90deg,#8b6a2d,#f0cb68)}
+#xpFill{background:linear-gradient(90deg,#3d8359,#9edb8c)}
+.big{font-size:22px;font-weight:800;color:var(--gold2)}
+.muted,.footer{color:var(--muted);font-size:12px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.key{border:1px solid #344037;border-radius:7px;padding:8px;background:#0f1511;color:#adb8ae;font-size:10px}
+kbd{display:inline-block;border:1px solid #657363;border-bottom-width:2px;border-radius:4px;padding:1px 5px;margin-right:4px;color:#f6f3e9;background:#29332b;font:700 10px Inter}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions button{flex:1;min-width:135px}
+#shopBtn{border-color:#8b7548;background:linear-gradient(180deg,#594b2b,#332b1b);color:#ffe7ad}
+#resetBtn{border-color:#684043;background:linear-gradient(180deg,#49272a,#2b1a1b)}
+.feed{max-height:154px;overflow:auto;background:#0c110e;border:1px solid #303d33;border-radius:8px;padding:8px;font-size:11px;color:#bdc8bc}
+.feed div{padding:6px 2px;border-bottom:1px solid #202a22}
+.feed div:last-child{border:0}
+.footer{margin-top:14px;font-size:11px;color:#829087}
+.modal{display:none;position:fixed;inset:0;background:#030604d9;backdrop-filter:blur(7px);z-index:10;padding:18px;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modalcard{width:min(540px,100%);max-height:85vh;overflow:auto;padding:22px;background:linear-gradient(145deg,#202920,#111612);border:1px solid #68744f;border-radius:14px;box-shadow:0 25px 100px #000b}
+.modalcard h2{font:700 20px Cinzel,Georgia,serif;margin-top:0;color:var(--gold2)}
+.shoprow{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #39453a;padding:13px 0}
+.shoprow b{color:#f1efe5}
+@media(max-width:900px){.wrap{padding:14px}.layout{grid-template-columns:minmax(0,1fr) 275px;gap:12px}.side{padding:13px}}
+@media(max-width:700px){.wrap{padding:10px}.layout{grid-template-columns:1fr}.side{padding:14px}.sub{letter-spacing:1px;font-size:9px}.gamebox{padding:7px}.actions button{min-width:calc(50% - 8px);font-size:12px;padding:9px 7px}}
+</style>'''
+p = Path("/mnt/data/master_hunter_dark_fantasy_css.txt")
+p.write_text(css, encoding="utf-8")
+print(f"CSS tema baru siap: {p}")
