@@ -3,6 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTER HUNTER: THE LOST — Prototype</title>
+<style>
+  :root { color-scheme: dark; --bg:#101317; --panel:#1a2027; --line:#39434d; --gold:#e6b85c; --muted:#aab4be; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(circle at top,#26313b,#101317 65%); color:#f2f4f5; font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif; }
+  .wrap { max-width:1120px; margin:0 auto; padding:18px; }
+  header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  h1 { font-size:clamp(21px,4vw,32px); margin:0; letter-spacing:1px; }
+  h1 span { color:var(--gold); }
+  .sub { color:var(--muted); font-size:13px; margin-top:3px; }
+  .layout { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:14px; align-items:start; }
+  .panel { background:rgba(26,32,39,.96); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .gamebox { padding:8px; }
+  canvas { width:100%; height:auto; display:block; background:#192b24; border-radius:7px; image-rendering:pixelated; outline:none; }
+  .side { padding:14px; }
+  .side h2 { font-size:16px; margin:0 0 10px; color:var(--gold); }
+  .stat { margin:10px 0; }
+  .statline { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .bar { height:9px; background:#303943; border-radius:10px; overflow:hidden; }
+  .fill { height:100%; width:100%; transition:width .12s; }
+  #hpFill { background:#dc5656; } #stFill { background:#e5b84f; } #xpFill { background:#6fb37b; }
+  .big { font-size:22px; font-weight:750; color:var(--gold); }
+  .muted { color:var(--muted); font-size:12px; }
+  .controls { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
+  .key { border:1px solid var(--line); border-radius:7px; padding:7px; background:#14191e; font-size:12px; }
+  kbd { display:inline-block; border:1px solid #65717e; border-radius:4px; padding:1px 5px; margin-right:4px; color:#fff; background:#252d35; }
+  button { cursor:pointer; color:#f7f7f7; background:#293640; border:1px solid #52606d; padding:9px 12px; border-radius:8px; font-weight:650; }
+  button:hover { background:#374754; } button:disabled { opacity:.4; cursor:not-allowed; }
+  .actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .feed { max-height:150px; overflow:auto; background:#11161b; border:1px solid var(--line); border-radius:8px; padding:8px; font-size:12px; color:#c6d0d8; }
+  .feed div { padding:3px 0; border-bottom:1px solid #242c33; } .feed div:last-child { border:0; }
+  .footer { color:var(--muted); font-size:12px; margin-top:12px; }
+  .modal { display:none; position:fixed; inset:0; background:#000b; z-index:10; padding:18px; align-items:center; justify-content:center; }
+  .modal.open { display:flex; }
+  .modalcard { width:min(520px,100%); max-height:85vh; overflow:auto; padding:20px; background:#1a2027; border:1px solid #53616c; border-radius:14px; }
+  .modalcard h2 { margin-top:0; color:var(--gold); }
+  .shoprow { display:flex; justify-content:space-between; gap:12px; align-items:center; border-top:1px solid var(--line); padding:10px 0; }
+  @media(max-width:780px) { .layout { grid-template-columns:1fr; } .side { display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; } .side h2,.side .wide { grid-column:1/-1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>MASTER HUNTER: <span>THE LOST</span></h1>
+      <div class="sub">Playable Prototype 0.1 · Dark Fantasy Action RPG</div>
+    </div>
+    <div class="muted">Progress tersimpan otomatis di browser</div>
+  </header>
+  <div class="layout">
+    <section class="panel gamebox">
+      <canvas id="game" width="800" height="520" tabindex="0" aria-label="Area permainan"></canvas>
+      <div class="actions">
+        <button id="shopBtn">🪙 Hunter Camp / Toko</button>
+        <button id="invBtn">🎒 Inventaris (I)</button>
+        <button id="saveBtn">💾 Simpan</button>
+        <button id="resetBtn">↻ Mulai Ulang</button>
+      </div>
+      <div class="footer">Prototype awal: jelajahi hutan, kalahkan monster, kumpulkan Zeni, dan beli potion. Ini fondasi awal—fitur dan konten akan ditambah bertahap.</div>
+    </section>
+    <aside class="panel side">
+      <h2 class="wide">STATUS HUNTER</h2>
+      <div class="wide"><div style="font-weight:800;font-size:19px">KAEL <span class="muted">· Novice Hunter</span></div><div class="muted">Hunter Rank F · Level <span id="level">1</span></div></div>
+      <div class="stat wide"><div class="statline"><span>HP</span><span id="hpText">100 / 100</span></div><div class="bar"><div class="fill" id="hpFill"></div></div></div>
+      <div class="stat wide"><div class="statline"><span>Stamina</span><span id="stText">100 / 100</span></div><div class="bar"><div class="fill" id="stFill"></div></div></div>
+      <div class="stat wide"><div class="statline"><span>EXP</span><span id="xpText">0 / 100</span></div><div class="bar"><div class="fill" id="xpFill"></div></div></div>
+      <div><div class="muted">ZENI</div><div class="big">◉ <span id="zeni">250</span></div></div>
+      <div><div class="muted">ATK / DEF</div><div style="font-weight:750"><span id="atk">15</span> / <span id="def">5</span></div></div>
+      <div class="wide"><h2 style="margin-top:10px">KONTROL</h2>
+        <div class="controls">
+          <div class="key"><kbd>W A S D</kbd> Gerak</div>
+          <div class="key"><kbd>Space</kbd> Serang</div>
+          <div class="key"><kbd>Shift</kbd> Dodge</div>
+          <div class="key"><kbd>Q</kbd> Potion</div>
+          <div class="key"><kbd>I</kbd> Inventaris</div>
+          <div class="key"><kbd>E</kbd> Toko</div>
+        </div>
+      </div>
+      <div class="wide"><h2 style="margin-top:15px">HUNT LOG</h2><div class="feed" id="feed" aria-live="polite"></div></div>
+    </aside>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="modalcard"><div id="modalContent"></div><div class="actions"><button id="closeModal">Tutup (Esc)</button></div></div></div>
+<script>
+(() => {
+  const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  const keys = new Set();
+  let last=0, spawnClock=0, gameOver=false, paused=false, swing=0, invuln=0, dodge=0;
+  let player, enemies=[], particles=[], items=[], zeni=250, potions=2, level=1, exp=0, xpNeed=100, kills=0, bossSpawned=false;
+  let inventoryOpen=false;
+  const feedEl=document.getElementById('feed');
+  function log(s){ const d=document.createElement('div'); d.textContent='› '+s; feedEl.prepend(d); while(feedEl.children.length>8)feedEl.lastChild.remove(); }
+  function freshPlayer(){ return {x:W/2,y:H/2,r:12,hp:100,maxHp:100,st:100,maxSt:100,atk:15,def:5,faceX:1,faceY:0,speed:170}; }
+  function save(){
+    try { localStorage.setItem('mhtl-save',JSON.stringify({player:{x:player.x,y:player.y,hp:player.hp,maxHp:player.maxHp,st:player.st,maxSt:player.maxSt,atk:player.atk,def:player.def},zeni,potions,level,exp,xpNeed,kills})); log('Progress berhasil disimpan.'); }
+    catch(e){ log('Browser tidak mengizinkan penyimpanan.'); }
+    updateUI();
+  }
+  function load(){
+    try { const s=JSON.parse(localStorage.getItem('mhtl-save')||'null'); if(s){ player=Object.assign(freshPlayer(),s.player||{}); zeni=s.zeni??250; potions=s.potions??2; level=s.level??1; exp=s.exp??0; xpNeed=s.xpNeed??100; kills=s.kills??0; log('Save ditemukan. Selamat berburu kembali!'); return; } }catch(e){}
+    player=freshPlayer();
+  }
+  function updateUI(){
+    const set=(id,v)=>document.getElementById(id).textContent=v;
+    set('hpText',Math.ceil(player.hp)+' / '+player.maxHp); document.getElementById('hpFill').style.width=(player.hp/player.maxHp*100)+'%';
+    set('stText',Math.ceil(player.st)+' / '+player.maxSt); document.getElementById('stFill').style.width=(player.st/player.maxSt*100)+'%';
+    set('xpText',exp+' / '+xpNeed); document.getElementById('xpFill').style.width=(exp/xpNeed*100)+'%';
+    set('zeni',zeni);set('level',level);set('atk',player.atk);set('def',player.def);
+  }
+  function spawnEnemy(boss=false){
+    let side=Math.floor(Math.random()*4), x=side===0?20:side===1?W-20:Math.random()*(W-40)+20, y=side===2?20:side===3?H-20:Math.random()*(H-40)+20;
+    const scale=boss?4:1;
+    enemies.push({x,y,r:boss?27:13,hp:boss?260:35,maxHp:boss?260:35,atk:boss?20:8,speed:boss?39:54+Math.random()*18,boss,hit:0,phase:Math.random()*6});
+    if(boss) log('BOSS MUNCUL: VARKHOSS, The Corrupted Fang! Cari celah serangannya!');
+    else if(enemies.length===1) log('Thornfang terdeteksi. Siapkan senjata!');
+  }
+  function drop(e){
+    const money=e.boss?600:25+Math.floor(Math.random()*36); zeni+=money;
+    items.push({x:e.x,y:e.y,r:5,type:'coin',value:money,life:18});
+    if(Math.random()<(e.boss?1:.35)) items.push({x:e.x+8,y:e.y+6,r:5,type:'mat',value:1,life:18});
+    const gain=e.boss?120:25; exp+=gain;
+    log((e.boss?'Varkhoss dikalahkan!':'Monster dikalahkan!')+' +'+money+' Zeni, +'+gain+' EXP.');
+    kills++;
+    while(exp>=xpNeed){ exp-=xpNeed;level++;xpNeed=Math.floor(xpNeed*1.35);player.maxHp+=15;player.hp=player.maxHp;player.atk+=3;player.maxSt+=5;player.st=player.maxSt;log('LEVEL UP! Sekarang Level '+level+'. HP dipulihkan!'); }
+    if(e.boss){bossSpawned=true; log('Material langka diperoleh! Boss berikutnya akan jadi lebih kuat di update mendatang.');}
+    updateUI();
+  }
+  function attack(){
+    if(gameOver||paused||swing>0||player.st<12)return;
+    player.st-=12;swing=.22;
+    let hitAny=false;
+    for(const e of enemies){
+      const dx=e.x-player.x,dy=e.y-player.y,dist=Math.hypot(dx,dy);
+      const dot=(dx*player.faceX+dy*player.faceY)/(dist||1);
+      if(dist<58+(e.boss?8:0)&&dot>-.2){ e.hp-=player.atk; e.hit=.14; hitAny=true; burst(e.x,e.y,'#f4d17b',7); if(e.hp<=0)e.dead=true; }
+    }
+    if(hitAny) log('Serangan mengenai target!');
+  }
+  function burst(x,y,color,n){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*140,vy:(Math.random()-.5)*140,life:.25+Math.random()*.25,color});}
+  function usePotion(){if(potions<=0){log('Potion habis! Beli lagi di Hunter Camp.');return;}if(player.hp>=player.maxHp){log('HP masih penuh.');return;}potions--;player.hp=Math.min(player.maxHp,player.hp+45);log('Health Potion digunakan: +45 HP.');updateUI();}
+  function dodgeMove(){if(player.st<25||dodge>0)return;player.st-=25;dodge=.22;invuln=.32;player.x+=player.faceX*25;player.y+=player.faceY*25;player.x=Math.max(18,Math.min(W-18,player.x));player.y=Math.max(18,Math.min(H-18,player.y));}
+  function openModal(kind){
+    paused=true; const m=document.getElementById('modal'), c=document.getElementById('modalContent');m.classList.add('open');
+    if(kind==='shop'){
+      c.innerHTML='<h2>⛺ Hunter Camp</h2><p class="muted">Gunakan Zeni untuk persiapan hunt.</p>'+
+      '<div class="shoprow"><div><b>Health Potion</b><div class="muted">Pulihkan 45 HP · Punya: '+potions+'</div></div><button id="buyPotion" '+(zeni<100?'disabled':'')+'>100 Zeni</button></div>'+
+      '<div class="shoprow"><div><b>Upgrade Weapon</b><div class="muted">ATK +5 · Sekali beli per prototype</div></div><button id="buyWeapon" '+(zeni<300?'disabled':'')+'>300 Zeni</button></div>'+
+      '<div class="shoprow"><div><b>Armor Upgrade</b><div class="muted">DEF +3</div></div><button id="buyArmor" '+(zeni<250?'disabled':'')+'>250 Zeni</button></div>'+
+      '<p class="muted">Zeni saat ini: '+zeni+'</p>';
+      setTimeout(()=>{const p=document.getElementById('buyPotion');if(p)p.onclick=()=>{if(zeni>=100){zeni-=100;potions++;log('Membeli Health Potion.');openModal('shop');updateUI();}};const w=document.getElementById('buyWeapon');if(w)w.onclick=()=>{if(zeni>=300){zeni-=300;player.atk+=5;log('Senjata di-upgrade! ATK +5.');openModal('shop');updateUI();}};const a=document.getElementById('buyArmor');if(a)a.onclick=()=>{if(zeni>=250){zeni-=250;player.def+=3;log('Armor di-upgrade! DEF +3.');openModal('shop');updateUI();}};},0);
+    } else {
+      c.innerHTML='<h2>🎒 Inventaris Hunter</h2><div class="shoprow"><b>Health Potion</b><span>'+potions+'</span></div><div class="shoprow"><b>Monster Material</b><span>'+kills+'</span></div><div class="shoprow"><b>ZENI</b><span>'+zeni+'</span></div><div class="shoprow"><b>Weapon ATK</b><span>'+player.atk+'</span></div><div class="shoprow"><b>Armor DEF</b><span>'+player.def+'</span></div><p class="muted">Fitur crafting dan equipment lengkap akan ditambahkan di versi berikutnya.</p>';
+    }
+  }
+  function closeModal(){document.getElementById('modal').classList.remove('open');paused=false;canvas.focus();}
+  document.getElementById('closeModal').onclick=closeModal;
+  document.getElementById('shopBtn').onclick=()=>openModal('shop');
+  document.getElementById('invBtn').onclick=()=>openModal('inv');
+  document.getElementById('saveBtn').onclick=save;
+  document.getElementById('resetBtn').onclick=()=>{if(confirm('Mulai ulang? Save yang ada akan dihapus.')){localStorage.removeItem('mhtl-save');location.reload();}};
+  window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys.add(k);if(k===' '||k==='j')attack();if(k==='q')usePotion();if(k==='shift')dodgeMove();if(k==='e'&&!paused)openModal('shop');if(k==='i'&&!paused)openModal('inv');if(k==='escape'&&paused)closeModal();});
+  window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+  function update(dt){
+    if(paused||gameOver)return;
+    player.st=Math.min(player.maxSt,player.st+22*dt);swing=Math.max(0,swing-dt);invuln=Math.max(0,invuln-dt);dodge=Math.max(0,dodge-dt);
+    let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy--;if(keys.has('s')||keys.has('arrowdown'))dy++;if(keys.has('a')||keys.has('arrowleft'))dx--;if(keys.has('d')||keys.has('arrowright'))dx++;
+    if(dx||dy){let l=Math.hypot(dx,dy);dx/=l;dy/=l;player.faceX=dx;player.faceY=dy;player.x+=dx*player.speed*dt;player.y+=dy*player.speed*dt;}
+    player.x=Math.max(17,Math.min(W-17,player.x));player.y=Math.max(17,Math.min(H-17,player.y));
+    spawnClock+=dt;if(spawnClock>2.7&&enemies.filter(e=>!e.boss).length<5){spawnClock=0;spawnEnemy(false);}
+    if(kills>=5&&!bossSpawned&&!enemies.some(e=>e.boss)){spawnEnemy(true);}
+    for(const e of enemies){if(e.dead)continue;e.hit=Math.max(0,e.hit-dt);const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;if(d>e.r+player.r+4){e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt;}else if(invuln<=0){player.hp-=Math.max(1,e.atk-player.def)*dt;}}
+    enemies=enemies.filter(e=>{if(e.dead){drop(e);return false;}return true;});
+    items=items.filter(it=>{it.life-=dt;if(Math.hypot(player.x-it.x,player.y-it.y)<25){if(it.type==='coin'){/* Zeni already granted */}else log('Material monster dikumpulkan.');return false;}return it.life>0;});
+    particles=particles.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;return p.life>0;});
+    if(player.hp<=0){player.hp=0;gameOver=true;log('Hunter tumbang! Tekan Enter untuk kembali ke camp.');}
+    updateUI();
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // forest floor
+    ctx.fillStyle='#1a3027';ctx.fillRect(0,0,W,H);
+    for(let y=12;y<H;y+=32)for(let x=12;x<W;x+=32){ctx.fillStyle=((x*3+y*7)%5===0)?'#20382c':'#1d3429';ctx.fillRect(x,y,20,20);}
+    // trail
+    ctx.fillStyle='#3d3b2c';ctx.beginPath();ctx.ellipse(W/2,H/2,110,70,-.3,0,Math.PI*2);ctx.fill();
+    // trees and stones
+    for(let i=0;i<34;i++){const x=(i*137+37)%W,y=(i*83+21)%H;if(Math.hypot(x-player.x,y-player.y)<35)continue;ctx.fillStyle='#10231d';ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#35523a';ctx.beginPath();ctx.arc(x-3,y-4,10,0,Math.PI*2);ctx.fill();}
+    // camp marker
+    ctx.fillStyle='#d7a84b';ctx.fillRect(24,24,20,20);ctx.fillStyle='#ffe3a0';ctx.font='12px system-ui';ctx.fillText('CAMP',50,39);
+    // drops
+    for(const it of items){ctx.fillStyle=it.type==='coin'?'#f0c34e':'#8fd3a1';ctx.beginPath();ctx.arc(it.x,it.y,it.r,0,Math.PI*2);ctx.fill();}
+    // Detailed dark-fantasy monsters: thorn wolf and corrupted boss
+    for(const e of enemies){
+      ctx.save();ctx.translate(e.x,e.y);
+      const pulse=.5+.5*Math.sin(performance.now()/105+e.phase);
+      const body=e.boss?'#26191e':'#302b2a', hide=e.boss?'#4b252e':'#51413b', glow=e.boss?'#ff243d':'#ffb52e';
+      if(e.boss){ctx.shadowBlur=24;ctx.shadowColor='#c51f37';}
+      // ground shadow
+      ctx.fillStyle='#050806aa';ctx.beginPath();ctx.ellipse(2,8,e.boss?35:21,e.boss?21:13,-.1,0,Math.PI*2);ctx.fill();
+      // crooked legs and claws
+      ctx.strokeStyle=body;ctx.lineWidth=e.boss?10:6;ctx.lineCap='round';
+      for(const side of [-1,1])for(const fore of [-1,1]){const x=side*(e.boss?18:10),y=fore*(e.boss?12:7);ctx.beginPath();ctx.moveTo(x*.55,y*.35);ctx.lineTo(x*1.35,y*1.2+2);ctx.stroke();ctx.strokeStyle='#090b0a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x*1.35,y*1.2+2);ctx.lineTo(x*1.55,y*1.2+6);ctx.stroke();ctx.strokeStyle=body;ctx.lineWidth=e.boss?10:6;}
+      // long, ragged tail
+      ctx.strokeStyle=hide;ctx.lineWidth=e.boss?9:5;ctx.beginPath();ctx.moveTo(-e.r*.55,2);ctx.quadraticCurveTo(-e.r-8,-8,-e.r-14,-2);ctx.stroke();ctx.fillStyle='#100f10';ctx.beginPath();ctx.moveTo(-e.r-11,-5);ctx.lineTo(-e.r-22,-10);ctx.lineTo(-e.r-17,0);ctx.fill();
+      // ribbed beast body
+      ctx.fillStyle=e.hit?'#f4e9dc':body;ctx.beginPath();ctx.ellipse(-1,1,e.boss?27:17,e.boss?20:12,-.18,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=hide;ctx.beginPath();ctx.ellipse(-3,-3,e.boss?20:12,e.boss?14:8,-.2,0,Math.PI*2);ctx.fill();
+      // back ridges / bone spikes
+      for(let i=0;i<(e.boss?7:5);i++){const sx=-e.r*.55+i*(e.boss?8:5),sy=-7-Math.sin(i*.7)*2;ctx.fillStyle=i%2?'#aaa18b':'#d0c6aa';ctx.beginPath();ctx.moveTo(sx-4,sy+5);ctx.lineTo(sx+(i%2?0:3),sy-(e.boss?16:10));ctx.lineTo(sx+5,sy+6);ctx.closePath();ctx.fill();ctx.strokeStyle='#5b5146';ctx.lineWidth=1;ctx.stroke();}
+      // armored skull and jaw
+      ctx.fillStyle=e.hit?'#fff1df':(e.boss?'#5b3035':'#69544a');ctx.beginPath();ctx.ellipse(e.r*.55,-5,e.boss?16:10,e.boss?13:8,.25,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#161112';ctx.beginPath();ctx.moveTo(e.r*.55+2,-1);ctx.lineTo(e.r*.55+(e.boss?18:12),4);ctx.lineTo(e.r*.55+4,7);ctx.closePath();ctx.fill();
+      // horns, longer and crueler on boss
+      ctx.fillStyle=e.boss?'#b8a18d':'#d0c3a8';
+      for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(e.r*.45, -10+side*5);ctx.lineTo(e.r*.45+(e.boss?side*14:side*8),- (e.boss?29:19));ctx.lineTo(e.r*.45+(e.boss?side*9:side*5),-8+side*4);ctx.closePath();ctx.fill();}
+      // burning eyes
+      ctx.shadowBlur=12;ctx.shadowColor=glow;ctx.fillStyle=glow;ctx.fillRect(e.r*.55-4,-8,4,3);ctx.fillRect(e.r*.55+3,-8,4,3);ctx.fillStyle='#fff5cb';ctx.fillRect(e.r*.55-3,-8,1.5,2);ctx.fillRect(e.r*.55+4,-8,1.5,2);
+      // scars / crimson corruption veins on boss
+      if(e.boss){ctx.shadowBlur=8;ctx.shadowColor='#f21d3a';ctx.strokeStyle='#c71e37';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-16,-5);ctx.lineTo(-7,1);ctx.lineTo(-12,8);ctx.moveTo(0,-13);ctx.lineTo(7,-4);ctx.lineTo(4,5);ctx.stroke();ctx.fillStyle='#d71938';ctx.globalAlpha=.3+.25*pulse;ctx.beginPath();ctx.arc(-4,0,31,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+      // monster HP bar
+      ctx.shadowBlur=0;const bw=e.boss?58:31,bh=4,by=-(e.boss?43:29);ctx.fillStyle='#080a09';ctx.fillRect(-bw/2,by,bw,bh);ctx.fillStyle=e.boss?'#ed263f':'#db4545';ctx.fillRect(-bw/2,by,bw*Math.max(0,e.hp/e.maxHp),bh);ctx.strokeStyle='#a99a7b';ctx.lineWidth=.6;ctx.strokeRect(-bw/2,by,bw,bh);
+      ctx.restore();
+    }
+    // Kael, a readable armored hunter with cloak, layered steel and drawn sword
+    ctx.save();ctx.translate(player.x,player.y);
+    const facing=Math.atan2(player.faceY,player.faceX);
+    if(invuln>0)ctx.globalAlpha=.55+Math.sin(performance.now()/35)*.35;
+    // cast shadow
+    ctx.fillStyle='#030605aa';ctx.beginPath();ctx.ellipse(1,9,18,12,0,0,Math.PI*2);ctx.fill();
+    // cloak silhouette flowing behind hunter
+    ctx.fillStyle='#173c3b';ctx.beginPath();ctx.moveTo(-8,-12);ctx.lineTo(-17,-5);ctx.lineTo(-13,12);ctx.lineTo(-3,17);ctx.lineTo(8,9);ctx.lineTo(7,-11);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#27665e';ctx.beginPath();ctx.moveTo(-8,-7);ctx.lineTo(-13,-1);ctx.lineTo(-8,10);ctx.lineTo(-2,13);ctx.lineTo(2,6);ctx.lineTo(2,-8);ctx.closePath();ctx.fill();
+    // armored boots and legs
+    ctx.fillStyle='#151c1c';ctx.fillRect(-9,6,6,9);ctx.fillRect(3,6,6,9);ctx.fillStyle='#77847d';ctx.fillRect(-9,11,6,3);ctx.fillRect(3,11,6,3);
+    // shoulder plates
+    ctx.fillStyle='#a3aaa0';ctx.beginPath();ctx.moveTo(-12,-9);ctx.lineTo(-8,-14);ctx.lineTo(-2,-11);ctx.lineTo(-4,-5);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(12,-9);ctx.lineTo(8,-14);ctx.lineTo(2,-11);ctx.lineTo(4,-5);ctx.closePath();ctx.fill();
+    // breastplate with steel edge and teal inset
+    ctx.fillStyle='#263637';ctx.beginPath();ctx.moveTo(-8,-12);ctx.lineTo(8,-12);ctx.lineTo(10,2);ctx.lineTo(0,8);ctx.lineTo(-10,2);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='#a6b8ad';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#3b8b7b';ctx.beginPath();ctx.moveTo(-3,-9);ctx.lineTo(3,-9);ctx.lineTo(5,1);ctx.lineTo(0,4);ctx.lineTo(-5,1);ctx.closePath();ctx.fill();
+    // neck and face under hood
+    ctx.fillStyle='#b98c6b';ctx.fillRect(-3,-17,6,5);ctx.fillStyle='#111816';ctx.beginPath();ctx.moveTo(-9,-17);ctx.lineTo(-7,-24);ctx.lineTo(0,-28);ctx.lineTo(7,-24);ctx.lineTo(9,-17);ctx.lineTo(4,-13);ctx.lineTo(-5,-13);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#c79b78';ctx.beginPath();ctx.ellipse(0,-20,5.5,6.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#17201c';ctx.beginPath();ctx.moveTo(-7,-21);ctx.lineTo(-5,-27);ctx.lineTo(3,-28);ctx.lineTo(8,-22);ctx.lineTo(3,-23);ctx.lineTo(-1,-25);ctx.closePath();ctx.fill();
+    // sword arm and polished blade pointing in facing direction
+    ctx.save();ctx.rotate(facing);ctx.fillStyle='#273330';ctx.fillRect(4,-8,9,5);ctx.fillStyle='#9aa9a5';ctx.fillRect(10,-7,4,3);ctx.strokeStyle='#dce7e1';ctx.lineWidth=3.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(12,-5);ctx.lineTo(31,-5);ctx.stroke();ctx.strokeStyle='#7d928c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(14,-6);ctx.lineTo(29,-6);ctx.stroke();ctx.strokeStyle='#b99554';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(10,-9);ctx.lineTo(10,-1);ctx.stroke();
+    if(swing>0){ctx.strokeStyle='#f8edbd';ctx.lineWidth=5;ctx.shadowBlur=19;ctx.shadowColor='#f4d478';ctx.beginPath();ctx.arc(17,0,27,-1.05,1.05);ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(17,0,27,-.8,.8);ctx.stroke();}
+    ctx.restore();ctx.restore();
+    for(const p of particles){ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,4,4);}ctx.globalAlpha=1;
+    if(gameOver){ctx.fillStyle='#000b';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 32px system-ui';ctx.fillText('HUNTER TUMBANG',W/2,H/2-10);ctx.font='16px system-ui';ctx.fillText('Tekan ENTER untuk kembali ke camp',W/2,H/2+25);ctx.textAlign='left';}
+    ctx.fillStyle='#f0e5ca';ctx.font='13px system-ui';ctx.fillText('THE LOST FOREST',W-155,24);
+    ctx.fillStyle='#c7d0c8';ctx.font='11px system-ui';ctx.fillText('Kalahkan 5 monster untuk memanggil boss',W-250,H-15);
+  }
+  function frame(t){const dt=Math.min(.033,(t-last)/1000||0);last=t;if(gameOver&&keys.has('enter')){gameOver=false;player.hp=player.maxHp;player.x=W/2;player.y=H/2;invuln=2;log('Kembali ke camp. Bersiaplah untuk hunt berikutnya.');keys.delete('enter');}update(dt);draw();requestAnimationFrame(frame);}
+  load();updateUI();log('Selamat datang, Hunter. Hutan ini menyimpan sesuatu yang hilang.');log('Tips: gunakan WASD untuk bergerak dan Space untuk menyerang.');requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0c100f">
 <title>MASTER HUNTER: THE LOST</title>
 <style>
